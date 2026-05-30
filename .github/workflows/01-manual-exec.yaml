@@ -35,12 +35,13 @@ jobs:
             - name: Executando testes e2e
               run: yarn run e2e
 
-            # Notificação do Discord
+            # Notificação do Discord via PowerShell Nativo
             - name: Notificar no Discord
-              uses: rjstone/discord-webhook-notify@v1
-              if: always() # Continua garantindo o envio mesmo se o teste falhar
-              with:
-                severity: info
-                details: 'O pipeline do projeto pgats-ci terminou de rodar!'
-                webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}  
+              if: always()
+              shell: powershell
+              run: |
+                $body = @{
+                    content = "O pipeline do projeto pgats-ci terminou de rodar!"
+                } | ConvertTo-Json
+                Invoke-RestMethod -Uri "${{ secrets.DISCORD_WEBHOOK }}" -Method Post -Body $body -ContentType 'application/json' 
             
