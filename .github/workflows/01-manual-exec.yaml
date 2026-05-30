@@ -42,3 +42,13 @@ jobs:
             # Executar os testes e2e
             - name: Executando testes e2e
               run: yarn run e2e
+
+            # Notificação do Discord (Exercício 02)
+            - name: Notificar no Discord
+              uses: Ilshidur/action-discord@master
+              if: always() # Garante o aviso mesmo se o 'yarn run e2e' quebrar
+              env:
+                DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+              with:
+                args: 'O pipeline do projeto pgats-ci terminou de rodar! Verifique o status no GitHub Actions.'
+            
