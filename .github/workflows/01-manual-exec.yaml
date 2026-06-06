@@ -43,5 +43,6 @@ jobs:
                 $body = @{
                     content = "O pipeline do projeto pgats-ci terminou de rodar!"
                 } | ConvertTo-Json
-                Invoke-RestMethod -Uri "${{ secrets.DISCORD_WEBHOOK }}" -Method Post -Body $body -ContentType 'application/json' 
+                Invoke-RestMethod -Uri "${{ secrets.DISCORD_WEBHOOK }}" -Method Post -Body $body -ContentType 'application/json'
+                
             
