@@ -1,6 +1,6 @@
-# CI de Nível 01 - Disparo manual através de clique
+# CI de Nível 01 - Disparo Manual através de clique
 
-# nome do pipeline
+# nome da pipeline
 name: "Execução Manual"
 
 # gatilhos / triggers - regras de disparo
@@ -9,40 +9,36 @@ name: "Execução Manual"
 on:
     workflow_dispatch:
 
-# tarefas dentro da pipeline = jobs
+#tarefas dentro da pipeline = jobs
 
 jobs:
     #nome do job
     e2e-tests:
-        # máquina onde o job vai rodar
-        runs-on: [self-hosted, meu-computador]
+        # maquina onde o job vai rodar
+        runs-on: ubuntu-latest
 
         # passos do job
         steps:
             # clone do projeto
-            - name: Checkout code
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
 
-            # Instalação das dependências
+            # instalção do node
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24.x
+
+            # instalação do Yarn
+            - name: Instalando Yarn
+              run: npm install -g yarn
+            
+            #   instalação das dependências
             - name: Instalando dependências
-              run: yarn install
-
-            # Instalação dos Browsers do Playwright
+              run: yarn
+            
+            # instalação dos Browsers do Playwright
             - name: Instalando Browsers do Playwright
-              run: yarn playwright install --with-deps
-
-            # Executar os testes e2e
+              run: yarn playwright install
+            
+            # executar os testes e2e
             - name: Executando testes e2e
               run: yarn run e2e
-
-            # Notificação do Discord via PowerShell Nativo
-            - name: Notificar no Discord
-              if: always()
-              shell: powershell
-              run: |
-                $body = @{
-                    content = "O pipeline do projeto pgats-ci terminou de rodar!"
-                } | ConvertTo-Json
-                Invoke-RestMethod -Uri "${{ secrets.DISCORD_WEBHOOK }}" -Method Post -Body $body -ContentType 'application/json'
-                
-            
