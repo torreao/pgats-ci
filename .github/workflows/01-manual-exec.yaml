@@ -4,49 +4,57 @@
 name: "Execução Manual"
 
 # gatilhos / triggers - regras de disparo
-# gatilho manual = workflow_dispatch
-
 on:
-    workflow_dispatch:
+  workflow_dispatch:
+    # menu de seleção do ambiente para execução dos testes
+    inputs:
+      ambiente_execucao:
+        description: 'Escolha onde o teste vai rodar:'
+        required: true
+        default: 'ubuntu-latest'
+        type: choice
+        options:
+          - ubuntu-latest
+          - self-hosted
 
-#tarefas dentro da pipeline = jobs
-
+# tarefas dentro da pipeline = jobs
 jobs:
-    #nome do job
-    e2e-tests:
-        # maquina onde o job vai rodar
-        runs-on: ubuntu-latest
+  # nome do job
+  e2e-tests:
+    # github vai ler a escolha
+    runs-on: ${{ github.event.inputs.ambiente_execucao }}
 
-        # passos do job
-        steps:
-            # clone do projeto
-            - uses: actions/checkout@v4
+    # passos do job
+    steps:
+      # clone do projeto
+      - uses: actions/checkout@v4
 
-            # instalção do node
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: 24.x
+      # instalação do node
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
 
-            # instalação do Yarn
-            - name: Instalando Yarn
-              run: npm install -g yarn
+      # instalação do Yarn
+      - name: Instalando Yarn
+        run: npm install -g yarn
             
-            #   instalação das dependências
-            - name: Instalando dependências
-              run: yarn
+      # instalação das dependências
+      - name: Instalando dependências
+        run: yarn
             
-            # instalação dos Browsers do Playwright
-            - name: Instalando Browsers do Playwright
-              run: yarn playwright install
+      # instalação dos Browsers do Playwright
+      - name: Instalando Browsers do Playwright
+        run: yarn playwright install
             
-            # executar os testes e2e
-            - name: Executando testes e2e
-              run: yarn run e2e
+      # executar os testes e2e
+      - name: Executando testes e2e
+        run: yarn run e2e
 
-            - name: Notificar Discord
-              if: always()
-              uses: Ilshidur/action-discord@master
-              env:
-                DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-              with:
-                args: 'A execução do pipeline finalizou com: ${{ job.status }}'
+      # notificação para o Discord
+      - name: Notificar Discord
+        if: always()
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: 'A execução do pipeline finalizou com: ${{ job.status }}'
