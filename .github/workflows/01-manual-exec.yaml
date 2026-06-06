@@ -42,3 +42,11 @@ jobs:
             # executar os testes e2e
             - name: Executando testes e2e
               run: yarn run e2e
+
+            - name: Notificar Discord
+              if: always()
+              uses: Ilshidur/action-discord@master
+              env:
+                DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+              with:
+                args: 'A execução do pipeline finalizou com: ${{ job.status }}'
